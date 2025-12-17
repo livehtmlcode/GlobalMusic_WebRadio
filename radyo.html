@@ -1,0 +1,320 @@
+<!--
+MIT License
+
+Copyright (c) 2025 Okan Kaplan (LIVEHTML.net)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Music Web Radio | LiveHTML.net</title>
+<style>
+/* Body & Fonts */
+body {
+  margin:0;
+  font-family:"Courier New", monospace;
+  background: radial-gradient(circle at center, #3a2b1a, #000);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+/* Header */
+header {
+  width:100%;
+  padding:15px 0;
+  background: linear-gradient(90deg,#5e3b1f,#3b2313);
+  color:#f9d89a;
+  font-size:24px;
+  text-align:center;
+  text-shadow:0 0 5px #000;
+  box-shadow:0 0 10px rgba(0,0,0,0.7);
+}
+
+/* Radio Container */
+.radio {
+  background: linear-gradient(135deg, #5e3b1f 0%, #3b2313 100%);
+  width:520px;
+  max-width:90%;
+  border-radius:20px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.6),0 0 25px rgba(0,0,0,0.8);
+  border:10px solid #24170e;
+}
+
+/* Title */
+.title {
+  color:#f9d89a;
+  font-size:22px;
+  margin-bottom:10px;
+  text-shadow:0 0 5px #000;
+}
+
+/* Display */
+.display {
+  position:relative;
+  width:90%;
+  height:140px;
+  background:#111;
+  border:2px solid #222;
+  border-radius:10px;
+  box-shadow: inset 0 0 10px #000;
+  margin-bottom:15px;
+  overflow:hidden;
+}
+.display::before {
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: repeating-linear-gradient(to right,#00ff88 0,#00ff88 1px,transparent 2px,transparent 10px);
+  opacity:0.2;
+}
+.pointer {
+  position:absolute; top:0;
+  width:2px; height:100%;
+  background:#ff3333;
+  box-shadow:0 0 8px #ff4444,0 0 15px #ff6666;
+  transition:left 0.1s linear;
+}
+.station-name {
+  position:absolute; top:10px; width:100%; text-align:center; font-size:16px;
+  color:#9cffd4; text-shadow:0 0 5px #0f0;
+}
+.station-freq {
+  position:absolute; top:40px; width:100%; text-align:center; font-size:18px;
+  color:#00ffcc; text-shadow:0 0 5px #0ff;
+}
+
+/* Speaker */
+.speaker {
+  width:80%; height:70px;
+  background: repeating-radial-gradient(circle,#222 0,#222 2px,#000 2px,#000 4px);
+  border-radius:10px;
+  box-shadow: inset 0 0 12px #000;
+  margin-bottom:15px;
+}
+
+/* Controls */
+.controls {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:40px;
+  width:100%;
+  margin-bottom:15px;
+}
+.knob {
+  width:70px; height:70px; border-radius:50%;
+  background: radial-gradient(circle at 25% 25%, #eee, #444 80%);
+  border:2px solid #222;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.7),0 4px 6px rgba(0,0,0,0.8);
+  cursor: grab; position: relative;
+  transition: box-shadow 0.2s ease;
+}
+.knob:active { cursor: grabbing; }
+.knob::after {
+  content:""; position:absolute; top:10%; left:48%;
+  width:4px; height:10px; background:#ffeb99; border-radius:1px;
+  box-shadow:0 0 5px #ff0;
+}
+
+/* Switch */
+.switch-container { display:flex; align-items:center; gap:10px; }
+.switch {
+  width:40px; height:20px;
+  background:#222; border-radius:10px;
+  position:relative; cursor:pointer;
+  border:2px solid #555;
+}
+.switch::after {
+  content:"";
+  position:absolute; width:18px; height:18px;
+  background:#0f0; border-radius:50%; top:0; left:0;
+  transition:0.2s;
+}
+.switch.off::after { left:20px; background:#600; }
+.led { width:12px; height:12px; border-radius:50%; background:#600; box-shadow:0 0 5px #600; margin-left:10px; }
+.led.on { background:#0f0; box-shadow:0 0 10px #0f0; }
+
+/* Genre Buttons */
+.genre-switch {
+  display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  max-height:120px; overflow-y:auto;
+  margin-bottom:15px;
+}
+.genre-switch button {
+  padding:6px 12px; font-size:12px;
+  background:#222; color:#0f0; border:2px solid #555;
+  border-radius:6px; cursor:pointer;
+  transition:0.2s;
+}
+.genre-switch button.active { background:#0f0; color:#000; }
+
+/* Footer */
+footer {
+  width:100%;
+  padding:12px 0;
+  background: linear-gradient(90deg,#3b2313,#5e3b1f);
+  text-align:center;
+  color:#f9d89a;
+  font-size:14px;
+  text-shadow:0 0 5px #000;
+  box-shadow:0 -2px 8px rgba(0,0,0,0.5);
+}
+
+/* Audio hidden */
+audio { display:none; }
+</style>
+</head>
+<body>
+<header>🎵 Global Music Web Radio – LiveHTML.net</header>
+
+<div class="radio">
+  <div class="title">📻 Web Radio Player</div>
+  <div class="display">
+    <div class="station-name" id="stationName">Loading...</div>
+    <div class="station-freq" id="stationFreq">0 MHz</div>
+    <div class="pointer" id="pointer"></div>
+  </div>
+  <div class="speaker"></div>
+  <div class="controls">
+    <div class="knob" id="volumeKnob" title="Volume Control"></div>
+    <div class="switch-container">
+      <div class="switch off" id="powerSwitch"></div>
+      <div class="led" id="powerLed"></div>
+    </div>
+  </div>
+  <div class="genre-switch" id="genreSwitch">
+    <button data-genre="pop" class="active">1</button>
+    <button data-genre="jazz">2</button>
+    <button data-genre="hiphop">3</button>
+    <button data-genre="electronic">4</button>
+    <button data-genre="blues">5</button>
+    <button data-genre="country">6</button>
+    <button data-genre="reggae">7</button>
+    <button data-genre="soul">8</button>
+    <button data-genre="latin">9</button>
+    <button data-genre="dance">10</button>
+    <button data-genre="ambient">11</button>
+    <button data-genre="kpop">12</button>
+    <button data-genre="indie">13</button>
+    <button data-genre="trance">14</button>
+    <button data-genre="house">15</button>
+    <button data-genre="disco">16</button>
+  </div>
+  <audio id="radioPlayer"></audio>
+</div>
+
+<footer>
+© 2025 Okan Kaplan | <a href="https://livehtml.net" target="_blank" style="color:#f9d89a;text-decoration:none;">LIVEHTML.net</a> | MIT License
+</footer>
+
+<script>
+// --- Audio & Stations ---
+const audio = document.getElementById("radioPlayer");
+const nameDisplay = document.getElementById("stationName");
+const pointer = document.getElementById("pointer");
+const volumeKnob = document.getElementById("volumeKnob");
+const powerSwitch = document.getElementById("powerSwitch");
+const powerLed = document.getElementById("powerLed");
+const genreButtons = document.querySelectorAll("#genreSwitch button");
+
+let currentGenre="pop", currentRotation=0, currentFrequency=0, stations=[], baseUrl="", isOn=false;
+
+// --- Fetch servers ---
+async function getRadioBrowserBaseUrls(){
+    try{
+        const res = await fetch('https://all.api.radio-browser.info/json/servers');
+        const data = await res.json();
+        return data.map(s=>"https://"+s.name).filter(u=>u.startsWith("https://"));
+    } catch{return ["https://de1.api.radio-browser.info","https://nl1.api.radio-browser.info","https://us1.api.radio-browser.info"];}
+}
+async function checkServerAlive(server){ try{ const res=await fetch(server+'/json/config'); if(!res.ok) throw "Fail"; return server; } catch{return null;} }
+async function getFirstWorkingServer(){ const servers=await getRadioBrowserBaseUrls(); for(const s of servers){ const alive=await checkServerAlive(s); if(alive) return alive;} throw "No working Radio Browser servers"; }
+
+// --- Fetch stations ---
+async function fetchStations(){
+    if(!baseUrl) baseUrl=await getFirstWorkingServer();
+    const res = await fetch(`${baseUrl}/json/stations/bytag/${currentGenre}`);
+    const data = await res.json();
+    stations=data.filter(s=>s.url);
+    currentFrequency=0;
+    updateStationFromFreq();
+}
+
+// --- Genre selection ---
+genreButtons.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        currentGenre=btn.dataset.genre;
+        genreButtons.forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        fetchStations();
+    });
+});
+
+// --- Volume knob ---
+let isDraggingVol=false,lastAngleVol=0;
+volumeKnob.addEventListener("mousedown",()=>isDraggingVol=true);
+document.addEventListener("mouseup",()=>{isDraggingVol=false; lastAngleVol=0;});
+document.addEventListener("mousemove",(e)=>{
+    if(!isDraggingVol) return;
+    const rect=volumeKnob.getBoundingClientRect();
+    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    const dx=e.clientX-cx, dy=e.clientY-cy;
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
+    let delta=lastAngleVol===0?0:angle-lastAngleVol;
+    lastAngleVol=angle;
+    currentRotation+=delta;
+    volumeKnob.style.transform=`rotate(${currentRotation}deg)`;
+    let vol=Math.min(Math.max((currentRotation%360)/360,0),1);
+    audio.volume=vol;
+});
+
+// --- Power switch ---
+powerSwitch.addEventListener("click",()=>{
+    isOn=!isOn;
+    powerSwitch.classList.toggle("off",!isOn);
+    powerLed.classList.toggle("on",isOn);
+    if(isOn) audio.play().catch(()=>{}); else audio.pause();
+});
+
+// --- Update station ---
+function updateStationFromFreq(){
+    if(stations.length===0) return;
+    const index=Math.floor(currentFrequency*stations.length);
+    const station=stations[index];
+    nameDisplay.textContent=station.name;
+    pointer.style.left = 10+currentFrequency*80 + "%";
+    if(audio.src!==station.url){ audio.src=station.url; if(isOn) audio.play().catch(()=>{}); }
+}
+
+// --- Initialize ---
+(async()=>{ baseUrl=await getFirstWorkingServer(); await fetchStations(); })();
+</script>
+</body>
+</html>
